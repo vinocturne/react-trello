@@ -1,34 +1,95 @@
-import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
+import {
+    DragDropContext,
+    Draggable,
+    Droppable,
+    DropResult,
+} from "react-beautiful-dnd";
+import { useRecoilState } from "recoil";
+import styled from "styled-components";
+import { toDoState } from "./atoms";
+
+const Wrapper = styled.div`
+    display: flex;
+    max-width: 480px;
+    width: 100%;
+    margin: 0 auto;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+`;
+
+const Boards = styled.div`
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    width: 100%;
+`;
+
+const Board = styled.div`
+    padding: 20px 10px;
+    padding-top: 30px;
+    background-color: ${(props) => props.theme.boardColor};
+    border-radius: 5px;
+    min-height: 200px;
+`;
+
+const Card = styled.div`
+    padding: 10px 10px;
+    background-color: ${(props) => props.theme.cardColor};
+    border-radius: 5px;
+    margin-bottom: 5px;
+`;
 
 function App() {
-    const onDrageEnd = () => {};
+    const [toDos, setToDos] = useRecoilState(toDoState);
+    //드래그를 하면 최종적으로 도착한 Index와, 출발한 element에 대한 정보가 들어온다.
+    const onDrageEnd = ({ draggableId, destination, source }: DropResult) => {
+        if (!destination) return;
+
+        setToDos((oldToDos) => {
+            const copyToDos = [...oldToDos];
+            // 1) source.index를 가져와 해당 인덱스의 요소를 삭제
+            copyToDos.splice(source.index, 1);
+            // 2) destination.index 인덱스에 draggableId 주입.
+            copyToDos.splice(destination?.index, 0, draggableId);
+
+            return copyToDos;
+        });
+    };
     return (
         <DragDropContext onDragEnd={onDrageEnd}>
-            <div>
-                <Droppable droppableId="one">
-                    {/* Droppable의 children은 react가 아닌 javascript로 작성되어야하기 때문에
-                아래와 같이 익명함수를 통해 해당 컴포넌트를 불러올 수 있도록 한다. */}
-                    {(magic) => (
-                        <ul ref={magic.innerRef} {...magic.droppableProps}>
-                            <Draggable draggableId="first" index={0}>
-                                {/* 함수를 통해 태그를 지정할 때, 매개변수로 DraggableProvider를 보낼 수 있다. 
-                              해당 provider에는 innerRef, draggableProps, dragHandleProps등이 있는데,
-                              draggableProps를 드래그가 가능한 영역을 지정하는 프로퍼티고,
-                              draggableHandleProps는 드래그가 가능하게 하고싶은 곳에다가 옮겨놓으면 해당 부분만 드래그하여 아이템을 움직일 수 있다.*/}
-                                {(magic) => (
-                                    <li
-                                        ref={magic.innerRef}
-                                        {...magic.draggableProps}
-                                        {...magic.dragHandleProps}
+            <Wrapper>
+                <Boards>
+                    <Droppable droppableId="one">
+                        {(magic) => (
+                            <Board
+                                ref={magic.innerRef}
+                                {...magic.droppableProps}
+                            >
+                                {toDos.map((toDo, index) => (
+                                    // dnd를 사용할때에는 Key와 draggableId가 무조건 같아야한다.
+                                    <Draggable
+                                        key={toDo}
+                                        draggableId={toDo}
+                                        index={index}
                                     >
-                                        Hello
-                                    </li>
-                                )}
-                            </Draggable>
-                        </ul>
-                    )}
-                </Droppable>
-            </div>
+                                        {(magic) => (
+                                            <Card
+                                                ref={magic.innerRef}
+                                                {...magic.draggableProps}
+                                                {...magic.dragHandleProps}
+                                            >
+                                                {toDo}
+                                            </Card>
+                                        )}
+                                    </Draggable>
+                                ))}
+                                {/* placeholder로 요소가 빠졌을 때 board의 크기가 변하지 않도록 고정 */}
+                                {magic.placeholder}
+                            </Board>
+                        )}
+                    </Droppable>
+                </Boards>
+            </Wrapper>
         </DragDropContext>
     );
 }
