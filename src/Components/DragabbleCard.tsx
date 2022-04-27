@@ -30,5 +30,5 @@ function DraggableCard({ toDo, index }: IDragabbleCardProps) {
         </Draggable>
     );
 }
-
+//React.memo()를 사용하여 props가 변경되지 않았을 때에는 다시 랜더링 되지 않도록 설정한다.
 export default React.memo(DraggableCard);
