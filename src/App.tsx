@@ -24,13 +24,10 @@ const Boards = styled.div`
 function App() {
     const [toDos, setToDos] = useRecoilState(toDoState);
     const onDrageEnd = (info: DropResult) => {
-        console.log(info);
         const { destination, draggableId, source } = info;
         if (!destination) return;
         if (destination?.droppableId === source.droppableId) {
-            // 1) source droppableId와 Destination droppableId가 같은지 확인,
-            //    다르다면 다른 보드로 이동한 것.
-            // same board movement;
+            // Same Board Movement;
             setToDos((allBoards) => {
                 const boardCopy = [...allBoards[source.droppableId]];
                 boardCopy.splice(source.index, 1);
@@ -39,6 +36,25 @@ function App() {
                     ...allBoards,
                     //[ ]를 활용하여 겹치는 property의 경우 덮어씌운다.
                     [source.droppableId]: boardCopy,
+                };
+            });
+        }
+        if (destination.droppableId !== source.droppableId) {
+            //Different Board Movement;
+            setToDos((allBoards) => {
+                //전체 보드에서 source.droppableId 키를 가진 보드의 모든 요소를 가져온다.
+                const sourceBoard = [...allBoards[source.droppableId]];
+                const destinationBoard = [
+                    ...allBoards[destination.droppableId],
+                ];
+                sourceBoard.splice(source.index, 1);
+                destinationBoard.splice(destination?.index, 0, draggableId);
+                console.log(sourceBoard);
+                console.log(destinationBoard);
+                return {
+                    ...allBoards,
+                    [source.droppableId]: sourceBoard,
+                    [destination.droppableId]: destinationBoard,
                 };
             });
         }
