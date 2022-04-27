@@ -66,6 +66,7 @@ function App() {
                                 {...magic.droppableProps}
                             >
                                 {toDos.map((toDo, index) => (
+                                    // dnd를 사용할때에는 Key와 draggableId가 무조건 같아야한다.
                                     <Draggable
                                         key={toDo}
                                         draggableId={toDo}
