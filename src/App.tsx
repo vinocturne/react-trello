@@ -7,6 +7,7 @@ import {
 import { useRecoilState } from "recoil";
 import styled from "styled-components";
 import { toDoState } from "./atoms";
+import DraggableCard from "./Components/DragabbleCard";
 
 const Wrapper = styled.div`
     display: flex;
@@ -30,13 +31,6 @@ const Board = styled.div`
     background-color: ${(props) => props.theme.boardColor};
     border-radius: 5px;
     min-height: 200px;
-`;
-
-const Card = styled.div`
-    padding: 10px 10px;
-    background-color: ${(props) => props.theme.cardColor};
-    border-radius: 5px;
-    margin-bottom: 5px;
 `;
 
 function App() {
@@ -66,24 +60,12 @@ function App() {
                                 {...magic.droppableProps}
                             >
                                 {toDos.map((toDo, index) => (
-                                    // dnd를 사용할때에는 Key와 draggableId가 무조건 같아야한다.
-                                    <Draggable
+                                    <DraggableCard
                                         key={toDo}
-                                        draggableId={toDo}
                                         index={index}
-                                    >
-                                        {(magic) => (
-                                            <Card
-                                                ref={magic.innerRef}
-                                                {...magic.draggableProps}
-                                                {...magic.dragHandleProps}
-                                            >
-                                                {toDo}
-                                            </Card>
-                                        )}
-                                    </Draggable>
+                                        toDo={toDo}
+                                    />
                                 ))}
-                                {/* placeholder로 요소가 빠졌을 때 board의 크기가 변하지 않도록 고정 */}
                                 {magic.placeholder}
                             </Board>
                         )}
