@@ -6,13 +6,14 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { useRecoilState } from "recoil";
 import { toDoState } from "../atoms";
+import { saveStorage } from "../localStorage/localStrage";
 
 const CreateButton = styled.div`
     position: absolute;
     right: 0;
     bottom: 0;
-    width: 100px;
-    height: 100px;
+    width: 60px;
+    height: 60px;
     object-fit: cover;
 `;
 
@@ -56,6 +57,7 @@ function Create() {
         const data = { [taskName]: [], ...toDos };
         setToDos(data);
         setValue("taskName", "");
+        saveStorage(data);
         handleClose();
     };
     return (

@@ -1,13 +1,15 @@
+import { useEffect } from "react";
 import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
 import { useRecoilState } from "recoil";
 import styled from "styled-components";
 import { IToDoState, toDoState } from "./atoms";
 import Board from "./Components/Board";
 import Create from "./Components/Create";
+import { loadStorage, saveStorage } from "./localStorage/localStrage";
 
 const Wrapper = styled.div`
     display: flex;
-    max-width: 680px;
+    max-width: 700px;
     width: 100%;
     margin: 0 auto;
     justify-content: center;
@@ -17,7 +19,8 @@ const Wrapper = styled.div`
 
 const Boards = styled.div`
     display: flex;
-
+    flex-wrap: wrap;
+    justify-content: flex-start;
     /* grid-template-columns: repeat(3, 1fr); */
     gap: 10px;
     width: 100%;
@@ -38,6 +41,7 @@ function App() {
                 board.forEach((key) => {
                     newBoard[key] = allBoards[key];
                 });
+                saveStorage(newBoard);
                 return newBoard;
             });
         } else {
@@ -48,11 +52,12 @@ function App() {
                     const taskObj = boardCopy[source.index]; // 드래그하는 요소 obj
                     boardCopy.splice(source.index, 1);
                     boardCopy.splice(destination?.index, 0, taskObj);
-                    return {
+                    const newBoard = {
                         ...allBoards,
-                        //[ ]를 활용하여 겹치는 property의 경우 덮어씌운다.
                         [source.droppableId]: boardCopy,
                     };
+                    saveStorage(newBoard);
+                    return newBoard;
                 });
             }
             if (destination.droppableId !== source.droppableId) {
@@ -66,17 +71,23 @@ function App() {
                     ];
                     sourceBoard.splice(source.index, 1);
                     destinationBoard.splice(destination?.index, 0, taskObj);
-                    console.log(sourceBoard);
-                    console.log(destinationBoard);
-                    return {
+                    const newBoard = {
                         ...allBoards,
                         [source.droppableId]: sourceBoard,
                         [destination.droppableId]: destinationBoard,
                     };
+                    saveStorage(newBoard);
+                    return newBoard;
                 });
             }
         }
     };
+
+    useEffect(() => {
+        const localData = loadStorage;
+        if (localData != null) setToDos(localData);
+    }, []);
+
     return (
         <DragDropContext onDragEnd={onDrageEnd}>
             <Wrapper>

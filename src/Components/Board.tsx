@@ -3,7 +3,8 @@ import DraggableCard from "./DragabbleCard";
 import styled from "styled-components";
 import { useForm } from "react-hook-form";
 import { ITodo, toDoState } from "../atoms";
-import { useSetRecoilState } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { saveStorage } from "../localStorage/localStrage";
 
 const Wrapper = styled.div`
     padding: 10px 0px;
@@ -72,10 +73,12 @@ function Board({ toDos, boardId, index }: IBoardProps) {
             text: toDo,
         };
         setToDo((allBoards) => {
-            return {
+            const newBoard = {
                 ...allBoards,
                 [boardId]: [...allBoards[boardId], newToDo],
             };
+            saveStorage(newBoard);
+            return newBoard;
         });
         setValue("toDo", "");
     };
