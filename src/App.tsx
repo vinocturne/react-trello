@@ -1,34 +1,117 @@
-import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
+import { useEffect } from "react";
+import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
+import { useRecoilState } from "recoil";
+import styled from "styled-components";
+import { IToDoState, toDoState } from "./atoms";
+import Board from "./Components/Board";
+import Create from "./Components/Create";
+import { loadStorage, saveStorage } from "./localStorage/localStrage";
+
+const Wrapper = styled.div`
+    display: flex;
+    max-width: 700px;
+    width: 100%;
+    margin: 0 auto;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+`;
+
+const Boards = styled.div`
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    /* grid-template-columns: repeat(3, 1fr); */
+    gap: 10px;
+    width: 100%;
+`;
 
 function App() {
-    const onDrageEnd = () => {};
+    const [toDos, setToDos] = useRecoilState(toDoState);
+    const onDrageEnd = (info: DropResult) => {
+        const { destination, source, type, draggableId } = info;
+        if (!destination) return;
+        if (type === "task") {
+            setToDos((allBoards) => {
+                console.log(allBoards);
+                const board = Object.keys(allBoards);
+                board.splice(source.index, 1);
+                board.splice(destination?.index, 0, draggableId);
+                const newBoard: IToDoState = {};
+                board.forEach((key) => {
+                    newBoard[key] = allBoards[key];
+                });
+                saveStorage(newBoard);
+                return newBoard;
+            });
+        } else {
+            if (destination?.droppableId === source.droppableId) {
+                // Same Board Movement;
+                setToDos((allBoards) => {
+                    const boardCopy = [...allBoards[source.droppableId]];
+                    const taskObj = boardCopy[source.index]; // 드래그하는 요소 obj
+                    boardCopy.splice(source.index, 1);
+                    boardCopy.splice(destination?.index, 0, taskObj);
+                    const newBoard = {
+                        ...allBoards,
+                        [source.droppableId]: boardCopy,
+                    };
+                    saveStorage(newBoard);
+                    return newBoard;
+                });
+            }
+            if (destination.droppableId !== source.droppableId) {
+                //Different Board Movement;
+                setToDos((allBoards) => {
+                    //전체 보드에서 source.droppableId 키를 가진 보드의 모든 요소를 가져온다.
+                    const sourceBoard = [...allBoards[source.droppableId]];
+                    const taskObj = sourceBoard[source.index];
+                    const destinationBoard = [
+                        ...allBoards[destination.droppableId],
+                    ];
+                    sourceBoard.splice(source.index, 1);
+                    destinationBoard.splice(destination?.index, 0, taskObj);
+                    const newBoard = {
+                        ...allBoards,
+                        [source.droppableId]: sourceBoard,
+                        [destination.droppableId]: destinationBoard,
+                    };
+                    saveStorage(newBoard);
+                    return newBoard;
+                });
+            }
+        }
+    };
+
+    useEffect(() => {
+        const localData = loadStorage;
+        if (localData != null) setToDos(localData);
+    }, []);
+
     return (
         <DragDropContext onDragEnd={onDrageEnd}>
-            <div>
-                <Droppable droppableId="one">
-                    {/* Droppable의 children은 react가 아닌 javascript로 작성되어야하기 때문에
-                아래와 같이 익명함수를 통해 해당 컴포넌트를 불러올 수 있도록 한다. */}
+            <Wrapper>
+                <Droppable
+                    droppableId="task"
+                    type="task"
+                    direction="horizontal"
+                >
                     {(magic) => (
-                        <ul ref={magic.innerRef} {...magic.droppableProps}>
-                            <Draggable draggableId="first" index={0}>
-                                {/* 함수를 통해 태그를 지정할 때, 매개변수로 DraggableProvider를 보낼 수 있다. 
-                              해당 provider에는 innerRef, draggableProps, dragHandleProps등이 있는데,
-                              draggableProps를 드래그가 가능한 영역을 지정하는 프로퍼티고,
-                              draggableHandleProps는 드래그가 가능하게 하고싶은 곳에다가 옮겨놓으면 해당 부분만 드래그하여 아이템을 움직일 수 있다.*/}
-                                {(magic) => (
-                                    <li
-                                        ref={magic.innerRef}
-                                        {...magic.draggableProps}
-                                        {...magic.dragHandleProps}
-                                    >
-                                        Hello
-                                    </li>
-                                )}
-                            </Draggable>
-                        </ul>
+                        <Boards {...magic.droppableProps} ref={magic.innerRef}>
+                            {Object.keys(toDos).map((boardId, index) => (
+                                <Board
+                                    boardId={boardId}
+                                    key={boardId}
+                                    toDos={toDos[boardId]}
+                                    index={index}
+                                />
+                            ))}
+                            {magic.placeholder}
+                        </Boards>
                     )}
                 </Droppable>
-            </div>
+            </Wrapper>
+            <Create />
         </DragDropContext>
     );
 }
