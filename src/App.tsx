@@ -3,6 +3,7 @@ import { useRecoilState } from "recoil";
 import styled from "styled-components";
 import { IToDoState, toDoState } from "./atoms";
 import Board from "./Components/Board";
+import Create from "./Components/Create";
 
 const Wrapper = styled.div`
     display: flex;
@@ -15,8 +16,9 @@ const Wrapper = styled.div`
 `;
 
 const Boards = styled.div`
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    display: flex;
+
+    /* grid-template-columns: repeat(3, 1fr); */
     gap: 10px;
     width: 100%;
 `;
@@ -28,6 +30,7 @@ function App() {
         if (!destination) return;
         if (type === "task") {
             setToDos((allBoards) => {
+                console.log(allBoards);
                 const board = Object.keys(allBoards);
                 board.splice(source.index, 1);
                 board.splice(destination?.index, 0, draggableId);
@@ -97,6 +100,7 @@ function App() {
                     )}
                 </Droppable>
             </Wrapper>
+            <Create />
         </DragDropContext>
     );
 }

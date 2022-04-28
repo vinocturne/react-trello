@@ -12,6 +12,8 @@ const Wrapper = styled.div`
     min-height: 300px;
     display: flex;
     flex-direction: column;
+    box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px,
+        rgba(0, 0, 0, 0.23) 0px 6px 6px;
 `;
 const Title = styled.h1`
     text-align: center;
@@ -57,7 +59,7 @@ const Form = styled.form`
         padding: 5px;
         margin: 5px;
         border-radius: 15px;
-        border: 0.5px solid grey;
+        border: none;
     }
 `;
 
