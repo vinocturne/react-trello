@@ -1,11 +1,10 @@
-import { useEffect } from "react";
 import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
 import { useRecoilState } from "recoil";
 import styled from "styled-components";
 import { IToDoState, toDoState } from "./atoms";
 import Board from "./Components/Board";
 import Create from "./Components/Create";
-import { loadStorage, saveStorage } from "./localStorage/localStrage";
+import { saveStorage } from "./localStorage/localStrage";
 
 const Wrapper = styled.div`
     display: flex;
@@ -18,10 +17,11 @@ const Wrapper = styled.div`
 `;
 
 const Boards = styled.div`
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    /* grid-template-columns: repeat(3, 1fr); */
+    /* display: flex; */
+    /* flex-wrap: wrap; */
+    /* justify-content: flex-start; */
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
     gap: 10px;
     width: 100%;
 `;
@@ -82,11 +82,6 @@ function App() {
             }
         }
     };
-
-    useEffect(() => {
-        const localData = loadStorage;
-        if (localData != null) setToDos(localData);
-    }, []);
 
     return (
         <DragDropContext onDragEnd={onDrageEnd}>

@@ -3,7 +3,7 @@ import DraggableCard from "./DragabbleCard";
 import styled from "styled-components";
 import { useForm } from "react-hook-form";
 import { ITodo, toDoState } from "../atoms";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useSetRecoilState } from "recoil";
 import { saveStorage } from "../localStorage/localStrage";
 
 const Wrapper = styled.div`

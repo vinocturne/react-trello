@@ -50,9 +50,6 @@ function Create() {
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
-    const onClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        console.log("hi");
-    };
     const onValid = ({ taskName }: IForm) => {
         const data = { [taskName]: [], ...toDos };
         setToDos(data);
